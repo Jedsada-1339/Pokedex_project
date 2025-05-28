@@ -26,12 +26,10 @@
     <a href="./index.html"><img src="./src/img/International_Pokémon_logo.svg.png" class="w-3xs" alt=""></a>
   </header>
 
-  <!-- Login -->
+  <!-- Login/User Section -->
   <section class="absolute top-8 right-2">
-    <div class="sm:mr-4">
-        <a class="rounded-md bg-indigo-500 hover:bg-indigo-700 px-5 py-2.5 text-sm font-medium text-white shadow-sm" href="./login.html">
-          Login
-        </a>
+    <div class="sm:mr-4" id="userSection">
+      <!-- Content will be populated by JavaScript -->
     </div>
   </section>
 
@@ -111,8 +109,6 @@
     <section id="pokemon-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12"></section>
   </section>
 
-  <script src="./src/main.js"></script>
-
   <!-- Modal -->
   <div id="modal" class="fixed z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
     <div id="modalOverlay" class="fixed inset-0 bg-gray-500/75" aria-hidden="true"></div>
@@ -183,6 +179,10 @@
       </div>
     </div>
   </div>
+
+
+  <script src="./src/main.js"></script>
+  <script src="./src/auth.js"></script>
 
 </body>
 
