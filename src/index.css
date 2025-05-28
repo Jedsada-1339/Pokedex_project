@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+    --color-midnight-100: #8995f0;
+    --color-midnight-300: #5751da;
+  }
+
+body {
+  font-family: "Chakra Petch", sans-serif;
+}

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exercise10</title>
+  <link rel="stylesheet" href="./src/index.css">
+
+  <!-- Google font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Oswald:wght@200..700&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900
+&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Tagesschrift&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="min-h-screen flex flex-col items-center py-10">
+
+  <div
+    class="fixed inset-0 bg-[url('https://styleshit-pokedex.netlify.app/static/media/bg.65cf6936.jpg')] bg-center bg-repeat opacity-30 -z-10">
+  </div>
+
+  <header class="pb-16">
+    <img src="./src/img/International_Pokémon_logo.svg.png" class="w-3xs" alt="">
+  </header>
+
+  <!-- Filter Bar -->
+  <section class="flex flex-col items-center space-y-4 mb-10">
+    <h1 class="text-xl font-bold text-indigo-500">Select Gen:</h1>
+    <div id="gen-buttons" class="flex items-center bg-white shadow-md rounded-lg overflow-hidden"></div>
+    <div class="flex items-center space-x-2">
+      <label for="sort" class="text-sm font-medium text-gray-600">Sort by type:</label>
+      <select id="sort" class="bg-white px-3 py-1 border rounded-lg shadow-sm text-sm">
+        <option value="all">All</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Pagination Tab-->
+  <section class="Pagination mb-10 px-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0 mt-4">
+      <!-- Items Per Page -->
+      <div class="flex justify-center md:justify-start items-center space-x-2">
+        <label for="itemsPerPage" class="font-medium whitespace-nowrap">Items per page:</label>
+        <select id="itemsPerPage" class="border border-gray-300 rounded px-3 py-1 text-sm">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+
+      <!-- Pagination -->
+      <div class="overflow-x-auto md:overflow-visible sm:pl-10">
+        <nav class="isolate inline-flex -space-x-px rounded-md shadow-xs" aria-label="Pagination">
+          <!-- Previous -->
+          <a href="#"
+            class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+            <span class="sr-only">Previous</span>
+            <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z"
+                clip-rule="evenodd" />
+            </svg>
+          </a>
+
+          <!-- Pages -->
+          <a href="#" aria-current="page"
+            class="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">1</a>
+          <a href="#"
+            class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-200 focus:z-20 focus:outline-offset-0">2</a>
+          <a href="#"
+            class="relative hidden md:inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-200 focus:z-20 focus:outline-offset-0">3</a>
+          <span
+            class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-gray-300 ring-inset">...</span>
+          <a href="#"
+            class="relative hidden md:inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-200 focus:z-20 focus:outline-offset-0">8</a>
+          <a href="#"
+            class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-200 focus:z-20 focus:outline-offset-0">9</a>
+          <a href="#"
+            class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-200 focus:z-20 focus:outline-offset-0">10</a>
+
+          <!-- Next -->
+          <a href="#"
+            class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-200 focus:z-20 focus:outline-offset-0">
+            <span class="sr-only">Next</span>
+            <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                clip-rule="evenodd" />
+            </svg>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Pokemon Card -->
+  <section class="flex flex-col px-20 pb-10 items-center">
+    <section id="pokemon-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12"></section>
+  </section>
+
+  <script src="./src/main.js"></script>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true">
+    <div id="modalOverlay" class="fixed inset-0 bg-gray-500/75" aria-hidden="true"></div>
+
+    <!-- Modal Card -->
+    <div class="modal-card relative rounded-3xl shadow-2xl w-[500px] h-[300px] text-white 
+     opacity-0 scale-90 transition duration-300 ease-out">
+      <p id="closeModal" class="absolute top-5 left-6 text-2xl font-bold opacity-70 hover:opacity-100 cursor-pointer">❌
+      </p>
+      <p class="absolute top-4 right-6 text-white/30 text-2xl font-bold">#001</p>
+      <h2 class="text-3xl font-bold text-white text-center mb-2 pt-5">
+        <!-- pokemon name will be inserted here -->
+      </h2>
+      <div class="type-container flex justify-center gap-2 mb-4">
+        <!-- type badges will be inserted here -->
+      </div>
+      <img src="./src/img/BG/BG.png" alt="" class="absolute bottom-1 right-1 h-36 drop-shadow-lg opacity-25 z-10" />
+    </div>
+
+    <div class="fixed top-98 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 flex flex-col items-center" role="dialog"
+      aria-modal="true">
+
+      <img class="pokemon-image h-40 drop-shadow-lg z-50 mb-[-60px] transition duration-300 opacity-0 scale-90" src=""
+        alt="" />
+
+      <!-- Detail Box -->
+      <div class="relative bg-white p-6 rounded-3xl shadow-2xl w-[500px] min-h-[200px] text-gray-800 pt-12 
+     opacity-0 scale-90 transition duration-300 ease-out">
+        <!-- Tabs -->
+        <div class="flex gap-10 mb-4">
+          <p id="tabAbout" class="text-md font-bold border-b-2 border-midnight-100 cursor-pointer">About</p>
+          <p id="tabStats" class="text-md font-bold cursor-pointer">Base Stats</p>
+        </div>
+
+        <!-- About Section -->
+        <div id="aboutSection">
+          <table class="table-auto text-md">
+            <tbody>
+              <tr>
+                <td class="font-[200] text-gray-700 pr-8 pt-4">Species</td>
+                <td id="modalSpecies" class="text-gray-900 pt-4">Loading...</td>
+              </tr>
+              <tr>
+                <td class="font-[200] text-gray-700 pr-8 pt-4">Height</td>
+                <td id="modalHeight" class="text-gray-900 pt-4">Loading...</td>
+              </tr>
+              <tr>
+                <td class="font-[200] text-gray-700 pr-8 pt-4">Weight</td>
+                <td id="modalWeight" class="text-gray-900 pt-4">Loading...</td>
+              </tr>
+              <tr>
+                <td class="font-[200] text-gray-700 pr-8 pt-4">Abilities</td>
+                <td id="modalAbilities" class="text-gray-900 pt-4">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Base Stats Section -->
+        <div id="statsSection" class="hidden">
+          <table class="table-auto text-md ">
+            <tbody id="statsTable">
+              <!-- Filled in JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
