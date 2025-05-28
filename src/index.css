@@ -1,10 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-    --color-midnight-100: #8995f0;
-    --color-midnight-300: #5751da;
-  }
+  --color-midnight-100: #8995f0;
+  --color-midnight-300: #5751da;
+}
 
 body {
   font-family: "Chakra Petch", sans-serif;
 }
+
+ @keyframes pokeballShake {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-5deg); }
+        75% { transform: rotate(5deg); }
+    }
+    
+    .pokeball-shake {
+        animation: pokeballShake 0.6s ease-in-out;
+    }
+    
+    .pokeball-bg {
+        background: linear-gradient(180deg, #dc2626 0%, #dc2626 45%, #1f2937 45%, #1f2937 55%, #f3f4f6 55%, #f3f4f6 100%);
+    }
+    
+    .pokeball-center::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8px;
+        height: 8px;
+        background: white;
+        border: 2px solid #1f2937;
+        border-radius: 50%;
+    }

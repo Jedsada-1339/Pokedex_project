@@ -22,6 +22,7 @@ let currentType = 'all';
 let currentPage = 1;
 let itemsPerPage = parseInt(itemsPerPageSelect.value);
 let allPokemonData = []; // Store all loaded pokemon data
+let favoritePokemon = new Set(); // Store favorite pokemon IDs
 
 // Create generation buttons
 genRanges.forEach((_, index) => {
@@ -76,12 +77,12 @@ function fetchAndDisplay() {
       <img src="./src/img/loading.png" alt="Loading..." class="h-44 sm:h-62 animate-spin" />
       <span class="sr-only">Loading...</span>
     </div>`;
-  
+
   const promises = [];
   for (let i = start; i <= end; i++) {
     promises.push(fetch(`https://pokeapi.co/api/v2/pokemon/${i}`).then(res => res.json()));
   }
-  
+
   Promise.all(promises).then(pokemons => {
     allPokemonData = pokemons;
     renderCurrentPage();
@@ -94,11 +95,11 @@ function renderCurrentPage() {
   if (currentType !== 'all') {
     filteredPokemon = allPokemonData.filter(p => p.types.some(t => t.type.name === currentType));
   }
-  
+
   // Calculate pagination
   const totalItems = filteredPokemon.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
+
   // Ensure current page is valid
   if (currentPage > totalPages) {
     currentPage = totalPages;
@@ -106,15 +107,15 @@ function renderCurrentPage() {
   if (currentPage < 1) {
     currentPage = 1;
   }
-  
+
   // Get items for current page
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
   const currentItems = filteredPokemon.slice(startIndex, endIndex);
-  
+
   // Render cards
   renderCards(currentItems);
-  
+
   // Update pagination UI
   updatePaginationUI(totalPages);
 }
@@ -129,10 +130,10 @@ function updatePaginationUI(totalPages) {
       </svg>
     </a>
   `;
-  
+
   // Generate page buttons
   const displayedPages = getDisplayedPages(currentPage, totalPages);
-  
+
   displayedPages.forEach(page => {
     if (page === '...') {
       paginationHTML += `
@@ -147,7 +148,7 @@ function updatePaginationUI(totalPages) {
       `;
     }
   });
-  
+
   paginationHTML += `
     <a href="#" class="pagination-next relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-gray-300 ring-inset hover:bg-gray-200 focus:z-20 focus:outline-offset-0 ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''}">
       <span class="sr-only">Next</span>
@@ -156,9 +157,9 @@ function updatePaginationUI(totalPages) {
       </svg>
     </a>
   `;
-  
+
   paginationNav.innerHTML = paginationHTML;
-  
+
   // Add event listeners to pagination controls
   document.querySelector('.pagination-prev').addEventListener('click', e => {
     e.preventDefault();
@@ -167,7 +168,7 @@ function updatePaginationUI(totalPages) {
       renderCurrentPage();
     }
   });
-  
+
   document.querySelector('.pagination-next').addEventListener('click', e => {
     e.preventDefault();
     if (currentPage < totalPages) {
@@ -175,7 +176,7 @@ function updatePaginationUI(totalPages) {
       renderCurrentPage();
     }
   });
-  
+
   document.querySelectorAll('.pagination-page').forEach(pageLink => {
     pageLink.addEventListener('click', e => {
       e.preventDefault();
@@ -188,7 +189,7 @@ function updatePaginationUI(totalPages) {
 // Helper function to determine which page numbers to show
 function getDisplayedPages(currentPage, totalPages) {
   const displayedPages = [];
-  
+
   if (totalPages <= 7) {
     // If few pages, show all
     for (let i = 1; i <= totalPages; i++) {
@@ -197,36 +198,36 @@ function getDisplayedPages(currentPage, totalPages) {
   } else {
     // Always show first page
     displayedPages.push(1);
-    
+
     // Determine start and end of displayed pages
     let startPage = Math.max(2, currentPage - 1);
     let endPage = Math.min(totalPages - 1, currentPage + 1);
-    
+
     // Adjust to show 3 pages minimum
     if (startPage === 2) endPage = Math.min(4, totalPages - 1);
     if (endPage === totalPages - 1) startPage = Math.max(2, totalPages - 3);
-    
+
     // Add ellipsis if needed before startPage
     if (startPage > 2) displayedPages.push('...');
-    
+
     // Add middle pages
     for (let i = startPage; i <= endPage; i++) {
       displayedPages.push(i);
     }
-    
+
     // Add ellipsis if needed after endPage
     if (endPage < totalPages - 1) displayedPages.push('...');
-    
+
     // Always show last page
     displayedPages.push(totalPages);
   }
-  
+
   return displayedPages;
 }
 
 function renderCards(pokemons) {
   pokemonList.innerHTML = '';
-  
+
   if (pokemons.length === 0) {
     pokemonList.innerHTML = `
       <div class="col-span-full text-center py-10">
@@ -235,11 +236,13 @@ function renderCards(pokemons) {
     `;
     return;
   }
-  
+
   pokemons.forEach(p => {
     const card = document.createElement('div');
     const primaryType = p.types[0].type.name;
     const bgColor = typeColors[primaryType] || '#888';
+    const isFavorite = favoritePokemon.has(p.id);
+
     card.className = `
       text-white p-4 sm:p-6 lg:p-8 rounded-3xl shadow-xl 
       relative w-64 sm:w-72 md:w-80 h-60 sm:h-64 md:h-72 overflow-hidden 
@@ -262,8 +265,71 @@ function renderCards(pokemons) {
       <img src="./src/img/BG/BG.png" 
            alt="${p.name}" 
            class="absolute bottom-1 right-1 h-24 sm:h-38 opacity-25 drop-shadow-lg"/>
+
+      
+      <!-- Favorite button -->
+      <label class="favorite-button absolute bottom-4 left-2 inline-flex items-center cursor-pointer group" data-pokemon-id="${p.id}">
+          <input type="checkbox" ${isFavorite ? 'checked' : ''} class="sr-only peer favorite-checkbox">
+          <div class="relative w-14 h-8 pokeball-bg peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 
+          dark:peer-focus:ring-red-800 rounded-full peer pokeball-center
+          peer-checked:after:translate-x-6 rtl:peer-checked:after:-translate-x-6 
+          after:content-['♥'] after:absolute after:top-[2px] after:start-[2px] 
+          after:bg-white after:border-gray-300 after:border-2 after:rounded-full 
+          after:h-7 after:w-7 after:transition-all after:flex after:items-center after:justify-center
+          after:text-gray-400 after:text-sm after:font-bold
+          dark:border-gray-600 peer-checked:after:bg-red-100 peer-checked:after:text-red-500
+          shadow-lg hover:shadow-xl transition-all duration-300"></div>
+          <span class="ms-3 text-sm font-medium text-gray-800 peer-checked:text-red-600 transition-colors">
+              <span class="not-favorite ${isFavorite ? 'hidden' : ''}"></span>
+          </span>
+      </label>
     `;
-    card.addEventListener('click', () => openModal(p));
+
+    // Add click event for the card (but not for favorite button)
+    card.addEventListener('click', (e) => {
+      // Check if the click was on the favorite button or its children
+      if (!e.target.closest('.favorite-button')) {
+        openModal(p);
+      }
+    });
+
+    // Add favorite button functionality
+    const favoriteButton = card.querySelector('.favorite-button');
+    const checkbox = favoriteButton.querySelector('.favorite-checkbox');
+    const notFavoriteSpan = favoriteButton.querySelector('.not-favorite');
+    const isFavoriteSpan = favoriteButton.querySelector('.is-favorite');
+    const toggleContainer = favoriteButton.querySelector('div');
+
+    favoriteButton.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent card modal from opening
+
+      checkbox.checked = !checkbox.checked;
+
+      if (checkbox.checked) {
+        // Add to favorites
+        favoritePokemon.add(p.id);
+        toggleContainer.classList.add('pokeball-shake');
+        notFavoriteSpan.classList.add('hidden');
+        isFavoriteSpan.classList.remove('hidden');
+
+        // Store favorite data
+        storeFavoriteData(p);
+
+        // Remove animation class after animation completes
+        setTimeout(() => {
+          toggleContainer.classList.remove('pokeball-shake');
+        }, 600);
+      } else {
+        // Remove from favorites
+        favoritePokemon.delete(p.id);
+        notFavoriteSpan.classList.remove('hidden');
+        isFavoriteSpan.classList.add('hidden');
+
+        // Remove favorite data
+        removeFavoriteData(p.id);
+      }
+    });
+
     pokemonList.appendChild(card);
   });
 }
@@ -359,7 +425,7 @@ function openModal(pokemon) {
 function formatStatName(name) {
   switch (name) {
     case 'hp': return 'HP';
-    case 'attack': return 'Attack'; 
+    case 'attack': return 'Attack';
     case 'defense': return 'Defense';
     case 'special-attack': return 'Sp. Atk';
     case 'special-defense': return 'Sp. Def';
@@ -385,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     modalImage.classList.remove('opacity-100', 'scale-100');
     modalImage.classList.add('opacity-0', 'scale-90');
-  
+
     setTimeout(() => {
       modal.classList.add('hidden');
     }, 300);
@@ -413,7 +479,43 @@ document.addEventListener('DOMContentLoaded', () => {
     tabStats.classList.add('border-b-2', 'border-midnight-100');
     tabAbout.classList.remove('border-b-2', 'border-midnight-100');
   });
-  
+
   // Initialize pagination
   genButtonsContainer.querySelector('button').click();
 });
+
+// Fav store
+function storeFavoriteData(pokemon) {
+  const favoriteData = {
+    id: pokemon.id,
+    name: pokemon.name,
+    types: pokemon.types,
+    sprites: pokemon.sprites,
+    height: pokemon.height,
+    weight: pokemon.weight,
+    abilities: pokemon.abilities,
+    stats: pokemon.stats,
+    timestamp: Date.now()
+  };
+  
+  // Store in a global object for easy access
+  if (!window.favoritePokemonData) {
+    window.favoritePokemonData = {};
+  }
+  window.favoritePokemonData[pokemon.id] = favoriteData;
+  
+  console.log(`${capitalize(pokemon.name)} added to favorites!`, favoriteData);
+}
+
+function removeFavoriteData(pokemonId) {
+  if (window.favoritePokemonData && window.favoritePokemonData[pokemonId]) {
+    const pokemonName = window.favoritePokemonData[pokemonId].name;
+    delete window.favoritePokemonData[pokemonId];
+    console.log(`${capitalize(pokemonName)} removed from favorites!`);
+  }
+}
+
+// Add this function to get all favorite pokemon data
+function getFavoritePokemons() {
+  return window.favoritePokemonData || {};
+}
