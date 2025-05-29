@@ -35,12 +35,12 @@ class AuthManager {
         this.currentUser = null;
         window.currentUser = null;
         sessionStorage.removeItem('currentUser');
-        
+
         // Sign out from Google if it was a Google login
         if (window.google && window.google.accounts) {
             google.accounts.id.disableAutoSelect();
         }
-        
+
         // Redirect to login page
         window.location.href = './login.html';
     }
@@ -52,6 +52,57 @@ class AuthManager {
     getCurrentUser() {
         return this.currentUser;
     }
+    
+    getFavorites() {
+        if (!this.isLoggedIn()) return {};
+        const userId = this.currentUser.id;
+        const allFavorites = JSON.parse(localStorage.getItem('userFavorites') || '{}');
+        return allFavorites[userId] || {};
+    }
+
+    saveFavorite(pokemonData) {
+        if (!this.isLoggedIn()) return false;
+
+        const userId = this.currentUser.id;
+        const allFavorites = JSON.parse(localStorage.getItem('userFavorites') || '{}');
+
+        if (!allFavorites[userId]) {
+            allFavorites[userId] = {};
+        }
+
+        allFavorites[userId][pokemonData.id] = {
+            ...pokemonData,
+            timestamp: Date.now()
+        };
+
+        localStorage.setItem('userFavorites', JSON.stringify(allFavorites));
+        return true;
+    }
+
+    removeFavorite(pokemonId) {
+        if (!this.isLoggedIn()) return false;
+
+        const userId = this.currentUser.id;
+        const allFavorites = JSON.parse(localStorage.getItem('userFavorites') || '{}');
+
+        if (allFavorites[userId] && allFavorites[userId][pokemonId]) {
+            delete allFavorites[userId][pokemonId];
+            localStorage.setItem('userFavorites', JSON.stringify(allFavorites));
+            return true;
+        }
+        return false;
+    }
+
+    isFavorite(pokemonId) {
+        if (!this.isLoggedIn()) return false;
+        const favorites = this.getFavorites();
+        return favorites.hasOwnProperty(pokemonId);
+    }
+
+    getFavoriteIds() {
+        const favorites = this.getFavorites();
+        return new Set(Object.keys(favorites).map(id => parseInt(id)));
+    }
 
     updateUI() {
         const userSection = document.getElementById('userSection');
@@ -62,12 +113,12 @@ class AuthManager {
             userSection.innerHTML = `
                 <div class="flex items-center space-x-3">
                     <div class="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 shadow-sm">
-                        ${user.picture ? 
-                            `<img src="${user.picture}" alt="${user.name}" class="w-8 h-8 rounded-full">` : 
-                            `<div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                        ${user.picture ?
+                    `<img src="${user.picture}" alt="${user.name}" class="w-8 h-8 rounded-full">` :
+                    `<div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                                 ${user.name.charAt(0).toUpperCase()}
                             </div>`
-                        }
+                }
                         <span class="text-sm font-medium text-gray-700">${user.name}</span>
                     </div>
                     <button id="logoutBtn" class="rounded-md bg-red-500 hover:bg-red-700 px-3 py-2 text-sm font-medium text-white shadow-sm transition-colors">

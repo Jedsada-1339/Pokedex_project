@@ -22,7 +22,11 @@ let currentType = 'all';
 let currentPage = 1;
 let itemsPerPage = parseInt(itemsPerPageSelect.value);
 let allPokemonData = []; // Store all loaded pokemon data
-let favoritePokemon = new Set(); // Store favorite pokemon IDs
+
+function getFavoritePokemonIds() {
+    return window.authManager ? window.authManager.getFavoriteIds() : new Set();
+}
+
 
 // Create generation buttons
 genRanges.forEach((_, index) => {
@@ -237,6 +241,8 @@ function renderCards(pokemons) {
     return;
   }
 
+  const favoritePokemon = getFavoritePokemonIds();
+
   pokemons.forEach(p => {
     const card = document.createElement('div');
     const primaryType = p.types[0].type.name;
@@ -297,36 +303,35 @@ function renderCards(pokemons) {
     const favoriteButton = card.querySelector('.favorite-button');
     const checkbox = favoriteButton.querySelector('.favorite-checkbox');
     const notFavoriteSpan = favoriteButton.querySelector('.not-favorite');
-    const isFavoriteSpan = favoriteButton.querySelector('.is-favorite');
     const toggleContainer = favoriteButton.querySelector('div');
 
     favoriteButton.addEventListener('click', (e) => {
       e.stopPropagation(); // Prevent card modal from opening
 
+      // Check if user is logged in
+      if (!window.authManager || !window.authManager.isLoggedIn()) {
+        alert('Please log in to add favorites');
+        return;
+      }
+
       checkbox.checked = !checkbox.checked;
 
       if (checkbox.checked) {
         // Add to favorites
-        favoritePokemon.add(p.id);
-        toggleContainer.classList.add('pokeball-shake');
-        notFavoriteSpan.classList.add('hidden');
-        isFavoriteSpan.classList.remove('hidden');
-
-        // Store favorite data
-        storeFavoriteData(p);
-
-        // Remove animation class after animation completes
-        setTimeout(() => {
-          toggleContainer.classList.remove('pokeball-shake');
-        }, 600);
+        const success = window.authManager.saveFavorite(p);
+        if (success) {
+          toggleContainer.classList.add('pokeball-shake');
+          notFavoriteSpan.classList.add('hidden');
+          
+          // Remove animation class after animation completes
+          setTimeout(() => {
+            toggleContainer.classList.remove('pokeball-shake');
+          }, 600);
+        }
       } else {
         // Remove from favorites
-        favoritePokemon.delete(p.id);
+        window.authManager.removeFavorite(p.id);
         notFavoriteSpan.classList.remove('hidden');
-        isFavoriteSpan.classList.add('hidden');
-
-        // Remove favorite data
-        removeFavoriteData(p.id);
       }
     });
 
@@ -486,36 +491,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Fav store
 function storeFavoriteData(pokemon) {
-  const favoriteData = {
-    id: pokemon.id,
-    name: pokemon.name,
-    types: pokemon.types,
-    sprites: pokemon.sprites,
-    height: pokemon.height,
-    weight: pokemon.weight,
-    abilities: pokemon.abilities,
-    stats: pokemon.stats,
-    timestamp: Date.now()
-  };
-  
-  // Store in a global object for easy access
-  if (!window.favoritePokemonData) {
-    window.favoritePokemonData = {};
-  }
-  window.favoritePokemonData[pokemon.id] = favoriteData;
-  
-  console.log(`${capitalize(pokemon.name)} added to favorites!`, favoriteData);
+  // This function is now handled by AuthManager.saveFavorite()
+  console.log(`${capitalize(pokemon.name)} added to favorites!`);
 }
 
 function removeFavoriteData(pokemonId) {
-  if (window.favoritePokemonData && window.favoritePokemonData[pokemonId]) {
-    const pokemonName = window.favoritePokemonData[pokemonId].name;
-    delete window.favoritePokemonData[pokemonId];
-    console.log(`${capitalize(pokemonName)} removed from favorites!`);
-  }
+  // This function is now handled by AuthManager.removeFavorite()
+  console.log(`Pokemon removed from favorites!`);
 }
 
-// Add this function to get all favorite pokemon data
+// Update getFavoritePokemons function:
 function getFavoritePokemons() {
-  return window.favoritePokemonData || {};
+  return window.authManager ? window.authManager.getFavorites() : {};
 }
